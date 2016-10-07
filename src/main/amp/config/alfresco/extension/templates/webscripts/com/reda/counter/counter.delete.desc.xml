@@ -1,0 +1,9 @@
+<webscript>
+	<shortname>counter</shortname>
+	<description>Deletes a counter value with the given name.</description>
+	<url>/counter/{name}</url>
+	<family>Counter Demo</family>
+	<format default="json" />
+	<authentication>user</authentication>
+	<transaction>none</transaction>
+</webscript>

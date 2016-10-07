@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Definition of new Model -->
+<model name="rdwf:workflowmodel"
+	xmlns="http://www.alfresco.org/model/dictionary/1.0">
+
+	<!-- Optional meta-data about the model -->
+	<description>REDA Workflow Model</description>
+	<author>BigWave Consulting</author>
+	<version>1.0</version>
+
+	<!-- Imports are required to allow references to definitions in other models -->
+	<imports>
+		<import uri="http://www.alfresco.org/model/dictionary/1.0"
+			prefix="d" />
+		<import uri="http://www.alfresco.org/model/bpm/1.0"
+			prefix="bpm" />
+		<import uri="http://www.alfresco.org/model/workflow/1.0" 
+			prefix="wf"/>
+        <import uri="http://www.alfresco.org/model/content/1.0" 
+        	prefix="cm" />
+	</imports>
+
+	<!-- Introduction of new namespaces defined by this model -->
+	<namespaces>
+		<namespace uri="http://www.reda.com/model/workflow/1.0"
+			prefix="rdwf" />
+	</namespaces>
+	<constraints>
+		<!--
+        <constraint name="bpm:allowedPriority" type="LIST">
+            <parameter name="allowedValues">
+                <list>
+                    <value>1</value>
+                    <value>2</value>
+                    <value>3</value>
+                </list>
+            </parameter>
+        </constraint>
+
+        <constraint name="bpm:allowedStatus" type="LIST">
+            <parameter name="allowedValues">
+                <list>
+                    <value>Not Yet Started</value>
+                    <value>In Progress</value>
+                    <value>On Hold</value>
+                    <value>Cancelled</value>
+                    <value>Completed</value>
+                </list>
+            </parameter>
+        </constraint>
+
+        <constraint name="bpm:percentage" type="MINMAX">
+            <parameter name="minValue">
+                <value>0</value>
+            </parameter>
+            <parameter name="maxValue">
+                <value>100</value>
+            </parameter>
+        </constraint>
+
+        <constraint name="bpm:allowedDescriptionLength" type="LENGTH">
+             <parameter name="minLength">
+                 <value>0</value>
+             </parameter>
+             <parameter name="maxLength">
+                 <value>250</value>
+             </parameter>
+        </constraint>
+		-->
+		
+		<constraint name="rdwf:allowedInstructionsLength" type="LENGTH">
+             <parameter name="minLength">
+                 <value>0</value>
+             </parameter>
+             <parameter name="maxLength">
+                 <value>250</value>
+             </parameter>
+        </constraint>
+		<constraint name="rdwf:allowedHistoryCommentsLength" type="LENGTH">
+             <parameter name="minLength">
+                 <value>0</value>
+             </parameter>
+             <parameter name="maxLength">
+                 <value>1000</value>
+             </parameter>
+        </constraint>
+		
+		<constraint name="rdwf:topsApprovalStatus" type="LIST">
+            <!-- this parameter is used by the system: Possible values : allowedValues, minValue, maxValue, minLength, maxLength etc. -->
+			<parameter name="allowedValues">
+                <list>
+                    <value>Approved</value>
+                    <value>Rejected</value>
+                    <value>Additional Review</value>
+                </list>
+            </parameter>
+        </constraint>
+        
+    </constraints>
+    
+	
+	  
+		
+	<!-- Types -->
+	<types>
+
+	    <type name="rdwf:submitTOPSTask">
+				<parent>bpm:startTask</parent>
+				 <mandatory-aspects>
+                	<aspect>rdwf:topsMetaData</aspect>
+            	</mandatory-aspects>
+			</type>	
+	
+	<!-- 
+			Define one approvalWfTask and put all approval levels properties here. Since in TOPS we have only one we will
+			put only one.
+	 -->
+		<type name="rdwf:topsApprovalWorkflowTask">
+			<parent>bpm:activitiOutcomeTask</parent>
+				<properties>
+	                <property name="rdwf:topsApprovalStatus">
+	                    <type>d:text</type>
+	                    <default>Reject</default>
+	                    <constraints>
+	                       <constraint ref="rdwf:topsApprovalStatus" />
+	                    </constraints>
+	                </property>
+	            </properties>
+	            <overrides>
+	                <property name="bpm:packageItemActionGroup">
+	                    <default>edit_package_item_actions</default>
+	                </property>
+	                <property name="bpm:outcomePropertyName">
+	                    <default>{http://www.reda.com/model/workflow/1.0}topsApprovalStatus</default>
+	                </property>
+	            </overrides>
+			<mandatory-aspects>
+                	<aspect>rdwf:topsMetaData</aspect>
+            </mandatory-aspects>
+		</type>	
+			
+		
+		<!-- I have to have both defined in order to differentiate in form-config xml (altought the model is the same) -->
+		<type name="rdwf:topsManagerApprovalWorkflowTask">
+			<parent>rdwf:topsApprovalWorkflowTask</parent>
+		</type>
+		
+		<type name="rdwf:topsProcessingWorkflowTask">
+			<parent>bpm:workflowTask</parent>
+			<mandatory-aspects>
+                	<aspect>rdwf:topsMetaData</aspect>
+            </mandatory-aspects>
+		</type>
+		
+		<type name="rdwf:topsAdditionalReviewWorkflowTask">
+			<parent>bpm:workflowTask</parent>
+			<mandatory-aspects>
+                	<aspect>rdwf:topsMetaData</aspect>
+            </mandatory-aspects>
+		</type>
+			
+		
+	</types>
+	
+	
+	<!-- Aspects -->
+    <aspects>
+    
+        <aspect name="rdwf:topsMetaData">
+        	<properties>
+				<property name="rdwf:topsNumber">
+					<type>d:text</type>
+				</property>
+				<property name="rdwf:topsInstructions">
+					<type>d:text</type>
+				</property>
+				<property name="rdwf:useSelectedProcessor">
+					<type>d:text</type>
+				</property>
+				<property name="rdwf:topsDueDate">
+                    <type>d:date</type>
+                </property>
+                <property name="rdwf:GPPONumber">
+                    <type>d:text</type>
+                </property>
+                <property name="rdwf:topsSubmissionOK">
+                	<type>d:text</type>
+                </property>
+                <property name="rdwf:historyComments">
+					<type>d:text</type>
+					<constraints>
+	                       <constraint ref="rdwf:allowedHistoryCommentsLength" />
+	                </constraints>
+				</property>
+            </properties>
+            <associations>
+                <association name="rdwf:additionalreviewer">
+                    <source>
+                        <mandatory>false</mandatory>
+                        <many>false</many>
+                    </source>
+                    <target>
+                        <class>cm:person</class>
+                        <mandatory>false</mandatory>
+                        <many>false</many>
+                    </target>
+                </association>
+                <association name="rdwf:selectedprocessor">
+                    <source>
+                        <mandatory>false</mandatory>
+                        <many>false</many>
+                    </source>
+                    <target>
+                        <class>cm:person</class>
+                        <mandatory>false</mandatory>
+                        <many>false</many>
+                    </target>
+                </association>
+            </associations>       
+        </aspect>
+        
+      <!-- 
+        <aspect name="rdwf:poApprovalModel">
+        	<properties>
+                <property name="rdwf:testVar1">
+					<type>d:text</type>
+				</property>
+				<property name="rdwf:testVar2">
+					<type>d:int</type>
+				</property>
+            </properties>         
+           </aspect>
+       -->
+           
+      </aspects>
+	
+
+</model>

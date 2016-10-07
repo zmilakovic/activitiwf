@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/test">
+  <process id="tops_approval" name="TOPS Approval" isExecutable="true">
+    <endEvent id="endevent1" name="End"></endEvent>
+    <userTask id="processTOPS" name="Process TOPS" activiti:candidateGroups="GROUP_REDA_TOPS_PROCESSORS" activiti:formKey="rdwf:topsProcessingWorkflowTask">
+      <extensionElements>
+        <activiti:taskListener event="all" delegateExpression="${ProcessTOPS}"></activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <userTask id="reviewTOPS" name="Approve TOPS" activiti:candidateGroups="GROUP_REDA_TOPS_APPROVER" activiti:formKey="rdwf:topsManagerApprovalWorkflowTask">
+      <extensionElements>
+        <activiti:taskListener event="all" delegateExpression="${ReviewTOPS}"></activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <serviceTask id="initTOPS" name="Init TOPS" activiti:delegateExpression="${InitTOPS}"></serviceTask>
+    <serviceTask id="postprocessingTOPS" name="PostProcessing TOPS" activiti:delegateExpression="${PostProcessApproval}"></serviceTask>
+    <sequenceFlow id="flow7" sourceRef="postprocessingTOPS" targetRef="endevent1"></sequenceFlow>
+    <startEvent id="alfrescoStartevent1" name="Alfresco start" activiti:formKey="rdwf:submitTOPSTask"></startEvent>
+    <sequenceFlow id="flow8" sourceRef="alfrescoStartevent1" targetRef="initTOPS"></sequenceFlow>
+    <exclusiveGateway id="isApproved" name="IsApproved"></exclusiveGateway>
+    <sequenceFlow id="flow9" sourceRef="reviewTOPS" targetRef="isApproved"></sequenceFlow>
+    <sequenceFlow id="flow11" sourceRef="isApproved" targetRef="exclusivegateway1">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${rdwf_topsApprovalStatus == 'Approved'}]]></conditionExpression>
+    </sequenceFlow>
+    <userTask id="additionalReview" name="Additional Review" activiti:assignee="${rdwf_additionalreviewer.properties.userName}" activiti:formKey="rdwf:topsAdditionalReviewWorkflowTask">
+      <extensionElements>
+        <activiti:taskListener event="all" delegateExpression="${AdditionalReview}"></activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow13" sourceRef="isApproved" targetRef="additionalReview">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${rdwf_topsApprovalStatus == 'Additional Review'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow14" sourceRef="additionalReview" targetRef="reviewTOPS"></sequenceFlow>
+    <serviceTask id="postProcessRejection" name="PostProcessRejection" activiti:delegateExpression="${PostProcessRejection}"></serviceTask>
+    <sequenceFlow id="flow15" sourceRef="isApproved" targetRef="postProcessRejection">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${rdwf_topsApprovalStatus == 'Rejected'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow16" sourceRef="postProcessRejection" targetRef="endevent1"></sequenceFlow>
+    <userTask id="ProcessTOPSSelectedUser" name="Process TOPS Selected User" activiti:assignee="${rdwf_selectedprocessor.properties.userName}" activiti:formKey="rdwf:topsProcessingWorkflowTask">
+      <extensionElements>
+        <activiti:taskListener event="all" delegateExpression="${ProcessTOPS}"></activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway" default="flow18"></exclusiveGateway>
+    <sequenceFlow id="flow17" sourceRef="exclusivegateway1" targetRef="ProcessTOPSSelectedUser">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${rdwf_useSelectedProcessor == 'true'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow18" sourceRef="exclusivegateway1" targetRef="processTOPS"></sequenceFlow>
+    <inclusiveGateway id="inclusivegateway1" name="Inclusive Gateway"></inclusiveGateway>
+    <sequenceFlow id="flow19" sourceRef="ProcessTOPSSelectedUser" targetRef="inclusivegateway1"></sequenceFlow>
+    <sequenceFlow id="flow20" sourceRef="processTOPS" targetRef="inclusivegateway1"></sequenceFlow>
+    <sequenceFlow id="flow21" sourceRef="inclusivegateway1" targetRef="postprocessingTOPS"></sequenceFlow>
+    <sequenceFlow id="flow22" sourceRef="initTOPS" targetRef="reviewTOPS"></sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_tops_approval">
+    <bpmndi:BPMNPlane bpmnElement="tops_approval" id="BPMNPlane_tops_approval">
+      <bpmndi:BPMNShape bpmnElement="endevent1" id="BPMNShape_endevent1">
+        <omgdc:Bounds height="35.0" width="35.0" x="2070.0" y="432.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="processTOPS" id="BPMNShape_processTOPS">
+        <omgdc:Bounds height="113.0" width="211.0" x="1410.0" y="389.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="reviewTOPS" id="BPMNShape_reviewTOPS">
+        <omgdc:Bounds height="115.0" width="211.0" x="650.0" y="392.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="initTOPS" id="BPMNShape_initTOPS">
+        <omgdc:Bounds height="123.0" width="201.0" x="270.0" y="392.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="postprocessingTOPS" id="BPMNShape_postprocessingTOPS">
+        <omgdc:Bounds height="121.0" width="181.0" x="1840.0" y="389.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="alfrescoStartevent1" id="BPMNShape_alfrescoStartevent1">
+        <omgdc:Bounds height="35.0" width="35.0" x="125.0" y="437.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="isApproved" id="BPMNShape_isApproved">
+        <omgdc:Bounds height="40.0" width="40.0" x="940.0" y="432.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="additionalReview" id="BPMNShape_additionalReview">
+        <omgdc:Bounds height="101.0" width="191.0" x="1120.0" y="180.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="postProcessRejection" id="BPMNShape_postProcessRejection">
+        <omgdc:Bounds height="131.0" width="195.0" x="1128.0" y="560.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="ProcessTOPSSelectedUser" id="BPMNShape_ProcessTOPSSelectedUser">
+        <omgdc:Bounds height="114.0" width="201.0" x="1410.0" y="262.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway1" id="BPMNShape_exclusivegateway1">
+        <omgdc:Bounds height="40.0" width="40.0" x="1260.0" y="429.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="inclusivegateway1" id="BPMNShape_inclusivegateway1">
+        <omgdc:Bounds height="40.0" width="40.0" x="1730.0" y="429.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="flow7" id="BPMNEdge_flow7">
+        <omgdi:waypoint x="2021.0" y="449.0"></omgdi:waypoint>
+        <omgdi:waypoint x="2070.0" y="449.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow8" id="BPMNEdge_flow8">
+        <omgdi:waypoint x="160.0" y="454.0"></omgdi:waypoint>
+        <omgdi:waypoint x="270.0" y="453.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow9" id="BPMNEdge_flow9">
+        <omgdi:waypoint x="861.0" y="449.0"></omgdi:waypoint>
+        <omgdi:waypoint x="940.0" y="452.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow11" id="BPMNEdge_flow11">
+        <omgdi:waypoint x="980.0" y="452.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1260.0" y="449.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow13" id="BPMNEdge_flow13">
+        <omgdi:waypoint x="960.0" y="432.0"></omgdi:waypoint>
+        <omgdi:waypoint x="960.0" y="230.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1120.0" y="230.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow14" id="BPMNEdge_flow14">
+        <omgdi:waypoint x="1215.0" y="180.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1215.0" y="59.0"></omgdi:waypoint>
+        <omgdi:waypoint x="755.0" y="59.0"></omgdi:waypoint>
+        <omgdi:waypoint x="755.0" y="392.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow15" id="BPMNEdge_flow15">
+        <omgdi:waypoint x="960.0" y="472.0"></omgdi:waypoint>
+        <omgdi:waypoint x="960.0" y="625.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1128.0" y="625.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow16" id="BPMNEdge_flow16">
+        <omgdi:waypoint x="1323.0" y="625.0"></omgdi:waypoint>
+        <omgdi:waypoint x="2087.0" y="625.0"></omgdi:waypoint>
+        <omgdi:waypoint x="2087.0" y="467.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow17" id="BPMNEdge_flow17">
+        <omgdi:waypoint x="1280.0" y="429.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1280.0" y="320.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1410.0" y="319.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow18" id="BPMNEdge_flow18">
+        <omgdi:waypoint x="1300.0" y="449.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1410.0" y="445.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow19" id="BPMNEdge_flow19">
+        <omgdi:waypoint x="1611.0" y="319.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1750.0" y="320.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1750.0" y="429.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow20" id="BPMNEdge_flow20">
+        <omgdi:waypoint x="1621.0" y="445.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1730.0" y="449.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow21" id="BPMNEdge_flow21">
+        <omgdi:waypoint x="1770.0" y="449.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1840.0" y="449.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow22" id="BPMNEdge_flow22">
+        <omgdi:waypoint x="471.0" y="453.0"></omgdi:waypoint>
+        <omgdi:waypoint x="650.0" y="449.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

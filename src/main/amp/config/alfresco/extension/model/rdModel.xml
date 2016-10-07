@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Definition of new Model -->
+<model name="rd:redamodel" xmlns="http://www.alfresco.org/model/dictionary/1.0">
+
+	<!-- Optional meta-data about the model -->
+	<description>REDA Model</description>
+	<version>1.0</version>
+
+	<!-- Imports are required to allow references to definitions in other models -->
+	<imports>
+		<!-- Import Alfresco Dictionary Definitions -->
+		<import uri="http://www.alfresco.org/model/dictionary/1.0"
+			prefix="d" />
+		<!-- Import Alfresco Content Domain Model Definitions -->
+		<import uri="http://www.alfresco.org/model/content/1.0" prefix="cm" />
+	</imports>
+
+	<!-- Introduction of new namespaces defined by this model -->
+	<namespaces>
+		<namespace uri="http://www.redachem.com/model/content/1.0"
+			prefix="rd" />
+	</namespaces>
+
+	<constraints>
+		<constraint name="rd:topsStatus_constraint" type="LIST">
+			<parameter name="allowedValues">
+				<list>
+					<value>Draft</value>
+					<value>Under Review</value>
+					<value>Approved</value>
+					<value>Processed</value>
+					<value>Rejected</value>
+					<value>Closed</value>
+				</list>
+			</parameter>
+		</constraint>
+		<constraint name="rd:positiveInteger" type="MINMAX">
+			<parameter name="minValue">
+				<value>0</value>
+			</parameter>
+			<parameter name="maxValue">
+				<value>999999</value>
+			</parameter>
+		</constraint>
+		<constraint name="rd:allowedHistoryCommentsLength" type="LENGTH">
+             <parameter name="minLength">
+                 <value>0</value>
+             </parameter>
+             <parameter name="maxLength">
+                 <value>1000</value>
+             </parameter>
+        </constraint>
+	</constraints>
+		
+
+	<types>
+
+	    <!-- Counter -->
+	    <type name="rd:counter">
+			<title>Counter</title>
+			<parent>cm:content</parent>
+			<properties>
+				<property name="rd:count">
+					<title>Value</title>
+					<type>d:int</type>
+					<default>0</default>
+					<constraints>
+						<constraint ref="rd:positiveInteger" />
+					</constraints>
+				</property>
+			</properties>
+		</type>
+
+		<!-- Enterprise-wide generic document type -->
+		<type name="rd:doc">
+			<title>REDA Document</title>
+			<parent>cm:content</parent>
+			<mandatory-aspects>
+				<aspect>cm:generalclassifiable</aspect>
+			</mandatory-aspects>
+		</type>
+
+	</types>
+
+	<aspects>
+		<aspect name="rd:tops">
+			<title>TOPS Document Sheet</title>
+			<properties>
+				<property name="rd:topsNumber">
+					<type>d:text</type>
+					<mandatory>true</mandatory>
+				</property>
+				<property name="rd:GPPONumber">
+					<type>d:text</type>
+					<mandatory>false</mandatory>
+				</property>
+				<property name="rd:historyComments">
+					<type>d:text</type>
+					<constraints>
+	                       <constraint ref="rd:allowedHistoryCommentsLength" />
+	                </constraints>
+				</property>
+				<property name="rd:topsStatus">
+					<title>TOPS Status</title>
+					<type>d:text</type>
+					<mandatory>true</mandatory>
+					<default>Draft</default>
+					<index enabled="true">
+				      <atomic>true</atomic>
+				      <stored>false</stored> 
+				      <tokenised>both</tokenised>
+				    </index>
+					<constraints>
+						<constraint ref="rd:topsStatus_constraint" />
+					</constraints>
+				</property>
+				<property name="rd:approvedDate">
+					<type>d:datetime</type>
+					<mandatory>false</mandatory>
+				</property>
+				<property name="rd:approvedBy">
+					<type>d:text</type>
+					<mandatory>false</mandatory>
+				</property>
+			</properties>
+			<associations>
+                <association name="rd:salesManagers">
+                    <source>
+                        <mandatory>false</mandatory>
+                        <many>true</many>
+                    </source>
+                    <target>
+                        <class>cm:person</class>
+                        <mandatory>false</mandatory>
+                        <many>true</many>
+                    </target>
+                </association>
+             </associations>
+		</aspect>
+		
+		<aspect name="rd:topsFolder">
+			<title>TOPS Folder</title>
+			<properties>
+				<property name="rd:topsStatusFolder">
+						<title>TOPS Status</title>
+						<type>d:text</type>
+						<mandatory>false</mandatory>
+						<default>Draft</default>
+						<constraints>
+							<constraint ref="rd:topsStatus_constraint" />
+						</constraints>
+					</property>
+				</properties>
+		</aspect>
+
+	</aspects>
+
+</model>
+

@@ -1,0 +1,42 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE beans PUBLIC '-//SPRING//DTD BEAN//EN' 'http://www.springframework.org/dtd/spring-beans.dtd'>
+
+<beans>
+    <!-- Registration of new models -->
+    <bean id="reda.dictionaryBootstrap" parent="dictionaryModelBootstrap" depends-on="dictionaryBootstrap">
+        <property name="models">
+            <list>
+                <value>alfresco/extension/model/rdModel.xml</value>
+            </list>
+        </property>
+    </bean>
+    
+    <!-- Wf Java Delegate -->
+	<!-- IMPORTANT NOTE: value of id must be the same as the class name, otherwise the class will not be loaded -->
+	
+	<!--  <bean id="REDAAbstractJavaDelegate" parent="baseJavaDelegate" abstract="true" depends-on="activityBeanRegistry"/> -->
+	
+    <bean id="REDAExecutionJavaDelegate" parent="baseJavaDelegate" class="com.reda.wf.REDAExecutionJavaDelegate">
+    	<property name="nodeServiceInternal" ref="nodeService" />
+	</bean>
+	<bean id="REDATaskJavaDelegate" parent="baseJavaDelegate" class="com.reda.wf.REDATaskJavaDelegate">
+		<property name="nodeServiceInternal" ref="nodeService" />
+	</bean>
+	
+	
+	<!-- Java Task Delegates -->	    
+	 <bean id="ReviewTOPS" parent="REDATaskJavaDelegate" class="com.reda.wf.ReviewTOPS" /> 
+	 <bean id="AdditionalReview" parent="REDATaskJavaDelegate" class="com.reda.wf.AdditionalReview" /> 
+	 <bean id="ProcessTOPS" parent="REDATaskJavaDelegate" class="com.reda.wf.ProcessTOPS" /> 
+	
+	<!--  Java Execution delegates -->	
+	<bean id="InitTOPS" parent="REDAExecutionJavaDelegate" class="com.reda.wf.InitTOPS" />
+	<bean id="PostProcessApproval" parent="REDAExecutionJavaDelegate" class="com.reda.wf.PostProcessApproval" />
+	<bean id="PostProcessRejection" parent="REDAExecutionJavaDelegate" class="com.reda.wf.PostProcessRejection" />
+	
+<!-- 	<bean id="GenerateApprovedPDF" parent="REDAExecutionJavaDelegate" class="com.reda.wf.samples.GenerateApprovedPDF" />	 -->
+	
+	<!-- for testing only -->
+<!-- 	<bean id="TestJavaDelegate" parent="REDAExecutionJavaDelegate" class="com.reda.wf.samples.TestJavaDelegate" /> -->
+    
+</beans>
